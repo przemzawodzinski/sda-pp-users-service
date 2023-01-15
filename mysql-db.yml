@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+
+  mysql_db:
+    image: mysql:latest
+    container_name: mysql-db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: sda_users
+      MYSQL_DB_PASS: pass
+      MYSQL_DB_USERNAME: root
+      MYSQL_DB_URL: "jdbc:mysql://mysql-db:3306/sda_users?allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC"
+    volumes:
+      - type: volume
+        source: sda_users_db
+        target: "/var/lib/mysql"
+
+volumes:
+  sda_users_db:
+    name: sda_users_db
