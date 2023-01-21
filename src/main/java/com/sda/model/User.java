@@ -1,11 +1,12 @@
 package com.sda.model;
 
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.Hibernate;
+
 import java.util.Objects;
 
 @Entity
@@ -15,6 +16,7 @@ import java.util.Objects;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "user")
 public class User {
 
     @Id

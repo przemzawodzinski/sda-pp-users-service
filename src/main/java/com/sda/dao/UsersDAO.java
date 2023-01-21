@@ -5,10 +5,12 @@ import com.sda.model.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.List;
+
 public class UsersDAO {
 
     public void create(User user) {
-        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtils.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.persist(user);
             transaction.commit();
@@ -16,14 +18,24 @@ public class UsersDAO {
     }
 
     public boolean deleteByUsername(String username) {
-        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtils.openSession()) {
             Transaction transaction = session.beginTransaction();
-            User user = session.get(User.class, username);
-            if (user != null) {
+            User user = session.find(User.class, username);
+            boolean exist = user != null;
+            if (exist) {
                 session.remove(user);
             }
             transaction.commit();
-            return user != null;
+            return exist;
         }
     }
+
+    public List<User> findAll() {
+        Session session = HibernateUtils.openSession();
+        String query = "SELECT u FROM User u";
+        List<User> users = session.createQuery(query, User.class).list();
+        session.close();
+        return users;
+    }
+
 }

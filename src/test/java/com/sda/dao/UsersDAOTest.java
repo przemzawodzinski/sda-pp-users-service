@@ -6,6 +6,8 @@ import org.hibernate.Session;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 class UsersDAOTest {
@@ -16,14 +18,7 @@ class UsersDAOTest {
     void testCreateHappyPath() {
         // given
         String expectedUsername = UUID.randomUUID().toString();
-
-        User expectedUser = User.builder()
-                .username(expectedUsername)
-                .password("password")
-                .name("name")
-                .surname("surname")
-                .email("example@email.com")
-                .age(30).build();
+        User expectedUser = createUser(expectedUsername);
 
         // when
         usersDAO.create(expectedUser);
@@ -31,7 +26,7 @@ class UsersDAOTest {
         // then
         User actualUser;
 
-        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtils.openSession()) {
             actualUser = session.get(User.class, expectedUsername);
         }
 
@@ -42,7 +37,6 @@ class UsersDAOTest {
         Assertions.assertEquals(expectedUser.getPassword(), actualUser.getPassword());
         Assertions.assertEquals(expectedUser.getAge(), actualUser.getAge());
         Assertions.assertEquals(expectedUser.getEmail(), actualUser.getEmail());
-
     }
 
     @Test
@@ -61,17 +55,11 @@ class UsersDAOTest {
     void testDeleteByUsernameUserExist() {
         // given
         String username = UUID.randomUUID().toString();
-        User expectedUser = User.builder()
-                .username(username)
-                .password("password")
-                .name("name")
-                .surname("surname")
-                .email("example@email.com")
-                .age(30).build();
+        User expectedUser = createUser(username);
 
         usersDAO.create(expectedUser);
 
-        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
+        try (Session session = HibernateUtils.openSession()) {
             User user = session.get(User.class, username);
             Assertions.assertNotNull(user);
         }
@@ -88,4 +76,37 @@ class UsersDAOTest {
         }
     }
 
+    @Test
+    void testFindAll() {
+        // give
+        String username1 = UUID.randomUUID().toString();
+        String username2 = UUID.randomUUID().toString();
+
+        User user1 = createUser(username1);
+        User user2 = createUser(username2);
+        List<User> expectedUsers = List.of(user1, user2);
+
+//        expectedUsers.forEach(usersDAO::create);
+
+        usersDAO.create(user1);
+        usersDAO.create(user2);
+
+        // when
+        List<User> actualUsers = usersDAO.findAll();
+
+        //then
+        Assertions.assertNotNull(actualUsers);
+        Assertions.assertEquals(expectedUsers.size(), actualUsers.size());
+        Assertions.assertIterableEquals(expectedUsers, actualUsers);
+    }
+
+    public User createUser(String username) {
+        return User.builder()
+                .username(username)
+                .password("password")
+                .name("name")
+                .surname("surname")
+                .email("example@email.com")
+                .age(30).build();
+    }
 }
