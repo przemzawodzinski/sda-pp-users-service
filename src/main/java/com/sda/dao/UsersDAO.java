@@ -46,12 +46,23 @@ public class UsersDAO {
         return user;
     }
 
-    public void update(User updatedUser) {
+    public User update(User updatedUser) {
         try (Session session = HibernateUtils.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.merge(updatedUser);
+            User updateUser = session.merge(updatedUser);
             transaction.commit();
+            return updateUser;
         }
+    }
+
+    public boolean existsByUsername (String username) {
+        Session session = HibernateUtils.openSession();
+        String query = "SELECT count(u) FROM User u WHERE u.username = :username";
+        boolean exist = session.createQuery(query, Long.class)
+                .setParameter("username", username)
+                .uniqueResult() > 0;
+        session.close();
+        return exist;
     }
 
 

@@ -151,6 +151,31 @@ class UsersDAOTest {
         Assertions.assertEquals(expectedUser.getAge(), updatedUser.getAge());
         Assertions.assertEquals(expectedUser.getEmail(), updatedUser.getEmail());
     }
+    @Test
+    void testExistsByUsernameUserNotFound() {
+        // give
+        String nonExistingUsername = UUID.randomUUID().toString();
+
+        // when
+        boolean exists = usersDAO.existsByUsername(nonExistingUsername);
+
+        //then
+        Assertions.assertFalse(exists);
+    }
+
+    @Test
+    void testExistsByUsernameUserExists() {
+        // give
+        String username = UUID.randomUUID().toString();
+        User user = createUser(username);
+        usersDAO.create(user);
+
+        // when
+        boolean exists = usersDAO.existsByUsername(username);
+
+        //then
+        Assertions.assertTrue(exists);
+    }
 
     public User createUser(String username) {
         return User.builder()
