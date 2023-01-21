@@ -5,6 +5,7 @@ import com.sda.model.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import javax.crypto.SealedObject;
 import java.util.List;
 
 public class UsersDAO {
@@ -37,5 +38,21 @@ public class UsersDAO {
         session.close();
         return users;
     }
+
+    public User findUserByUsername(String username) {
+        Session session = HibernateUtils.openSession();
+        User user = session.find(User.class, username);
+        session.close();
+        return user;
+    }
+
+    public void update(User updatedUser) {
+        try (Session session = HibernateUtils.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.merge(updatedUser);
+            transaction.commit();
+        }
+    }
+
 
 }

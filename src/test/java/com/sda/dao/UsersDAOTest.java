@@ -100,6 +100,58 @@ class UsersDAOTest {
         Assertions.assertIterableEquals(expectedUsers, actualUsers);
     }
 
+    @Test
+    void testFindUserByUsername() {
+        // give
+        String username = UUID.randomUUID().toString();
+        User expectedUser = createUser(username);
+
+        usersDAO.create(expectedUser);
+
+        // when
+        User actualUser = usersDAO.findUserByUsername(username);
+
+        //then
+        Assertions.assertNotNull(actualUser);
+        Assertions.assertEquals(expectedUser, actualUser);
+        Assertions.assertEquals(expectedUser.getName(), actualUser.getName());
+        Assertions.assertEquals(expectedUser.getSurname(), actualUser.getSurname());
+        Assertions.assertEquals(expectedUser.getPassword(), actualUser.getPassword());
+        Assertions.assertEquals(expectedUser.getAge(), actualUser.getAge());
+        Assertions.assertEquals(expectedUser.getEmail(), actualUser.getEmail());
+
+    }
+
+    @Test
+    void testUpdateSuccess() {
+        // give
+        String username = UUID.randomUUID().toString();
+
+        User user = createUser(username);
+        usersDAO.create(user);
+
+        User expectedUser = createUser(username);
+        expectedUser.setName("changed name");
+        expectedUser.setEmail("changed_email@gmail.com");
+
+        // when
+        usersDAO.update(expectedUser);
+
+        //then
+        User updatedUser;
+        try (Session session = HibernateUtils.openSession()) {
+            updatedUser = session.find(User.class, username);
+        }
+
+        Assertions.assertNotNull(updatedUser);
+        Assertions.assertEquals(expectedUser, updatedUser);
+        Assertions.assertEquals(expectedUser.getName(), updatedUser.getName());
+        Assertions.assertEquals(expectedUser.getSurname(), updatedUser.getSurname());
+        Assertions.assertEquals(expectedUser.getPassword(), updatedUser.getPassword());
+        Assertions.assertEquals(expectedUser.getAge(), updatedUser.getAge());
+        Assertions.assertEquals(expectedUser.getEmail(), updatedUser.getEmail());
+    }
+
     public User createUser(String username) {
         return User.builder()
                 .username(username)
@@ -109,4 +161,6 @@ class UsersDAOTest {
                 .email("example@email.com")
                 .age(30).build();
     }
+
+
 }
